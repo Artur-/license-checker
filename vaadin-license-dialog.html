@@ -131,17 +131,29 @@
             #vaadin-license-dialog-input > button:active {
                 background-color: rgba(125, 125, 125, 0.2);
             }
+            #signin {
+              float: right;
+            }
         </style>
         <div id="dialog">
           <div id="licenseDialogHeader">
               <span id="header">[[header]]</span>
-              <span id="licenseDialogClose" on-click="_close">&times;</span>
           </div>
-          <div id="licenseDialogExplanation"></div>
-          <div id="vaadin-license-dialog-input">
+          <div id="licenseDialogExplanation">
+            <p>
+              <b>This project uses Vaadin Pro Elements, which require a license.</b>
+            </p>
+            <p>
+              Please sign in to vaadin.com to validate your license or to get an evaluation license.
+            </p>
+            <button id="signin" on-click="_signin">Sign in</button>
+            <p>
+            </p>
+          </div>
+<!--          <div id="vaadin-license-dialog-input">
               <input id="licenseDialogInput" name="vaadin-license-key" type="text" size="38" on-keydown="_inputKeyDown"><button id="licenseDialogButton" on-click="_submit">Submit</button>
           </div>
-        </div>
+-->        </div>
     </template>
 
     <script>
@@ -169,17 +181,8 @@
                 },
                 header: {
                     type: String,
-                    computed: '_computeHeader(type, productCaption)'
-                },
-                content: {
-                    type: String,
-                    observer: '_contentChanged',
-                    computed: '_computeContent(type, productCaption, expiryEpoch)'
+                    value: "Vaadin Subscription required"
                 }
-            },
-
-            _contentChanged: function(value) {
-                this.$.licenseDialogExplanation.innerHTML = value;
             },
 
             _submit: function() {
@@ -193,45 +196,6 @@
                     type: this.type,
                     expiryEpoch: this.expiryEpoch
                 });
-            },
-
-            _computeHeader: function(type, productCaption) {
-                if(type){
-                    return this.headers[type].replace('{0}', productCaption);
-                }
-            },
-
-            _computeContent: function(type, productCaption, expiryEpoch) {
-                if(type){
-                    if (type === 'trial') {
-                        var timeToExpiry = expiryEpoch - Date.now();
-                        var hoursToExpiry = Math.round(timeToExpiry /
-                            1000 / 60 / 60);
-                        var daysToExpiry = Math.round(timeToExpiry /
-                            1000 / 60 / 60 / 24);
-                        var expiryDate = new Date(expiryEpoch);
-                        var expiryDateISOFormat = expiryDate.getFullYear() +
-                            '-' + this._padDate(expiryDate.getMonth()) +
-                            '-' + this._padDate(expiryDate.getDate());
-
-                        if (hoursToExpiry < 24) {
-                            return this._replaceArguments(this.contents[
-                                    type], productCaption, 'in ' +
-                                hoursToExpiry + ' hours');
-                        } else if (daysToExpiry < 30) {
-                            return this._replaceArguments(this.contents[
-                                    type], productCaption, 'in ' +
-                                daysToExpiry + ' days');
-                        } else {
-                            return this._replaceArguments(this.contents[
-                                    type], productCaption, 'on ' +
-                                expiryDateISOFormat);
-                        }
-                    } else {
-                        return this._replaceArguments(this.contents[
-                            type], productCaption);
-                    }
-                }
             },
 
             _replaceArguments: function(string) {
@@ -250,7 +214,9 @@
                     return date;
                 }
             },
-
+            _signin: function(e) {
+              window.open("https://vaadin.com/pro/validate-license","_blank");
+            },
             _inputKeyDown: function(e) {
                 if (e.keyCode === 13) {
                     this._submit();
